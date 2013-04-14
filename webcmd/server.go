@@ -37,12 +37,9 @@ func CreateServer(host string) *WebCmdServer {
     }
     
     server.staticContentServer = staticcontent.NewServer("/static_root", server.Server)
-    server.staticContentServer.Install(
-        "fma",
-        "D:\\Downloaded\\[Coalgirls]_Fullmetal_Alchemist_Brotherhood_(1280x720_Blu-ray_FLAC)")
-    server.staticContentServer.Install(
-        "Doctor Who s07e08",
-        "D:\\Downloaded\\Done\\Doctor.Who.2005.S07E08.Cold.War.HDTV.x264-TLA[rarbg]")
+    if err = staticcontent.AddCsvPaths(server.staticContentServer); err != nil {
+        log.Println("Error installing paths from csv:", err)
+    }
     allModules := modules.InstalledModules(server.staticContentServer)
     
     for _, module := range allModules {

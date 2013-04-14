@@ -25,7 +25,7 @@ func (m *StaticContentModule) Init() error {
 var STATIC_CONTENT_TEMPLATE_FILE = "templates/static_content.html.template"
 
 func (m *StaticContentModule) Name() string {
-    return "Static Content Server"
+    return "Static Content Module"
 }
 
 func (m *StaticContentModule) Commands() []string {
