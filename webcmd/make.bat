@@ -1,0 +1,1 @@
+call go build -o webcmd.exe -ldflags="-Hwindowsgui" main.go server.go modulelist.go

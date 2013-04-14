@@ -1,0 +1,5 @@
+<div style="width:50%;text-align:left;margin-left:auto;margin-right:auto;">
+<h2>Installed Paths:</h2>
+<ol>
+{{range .}}<li><a href="{{.}}">{{.}}</a></li>{{end}}
+</ol>

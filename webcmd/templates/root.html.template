@@ -1,0 +1,27 @@
+<html>
+<head>
+<title>WebCmd{{if .Title}}{{printf " - %s" .Title |html}}{{end}}</title>
+</head>
+<body>
+<div style="width:100%;text-align:center;">
+<br>
+{{.Message |html}}
+<br>
+<br>
+<form action="/{{.Path}}" name="query" method="GET">
+<input type="hidden" name="source" value="query">
+<input type="text" name="q" value="{{.QueryString}}"><input type="submit" value="Go!">
+</form>
+<br>
+<br>
+{{if .Body}}
+<form action="/{{.Path}}" name="module" method="POST">
+<input type="hidden" name="source" value="{{.Command}}">
+<input type="hidden" name="q", value="{{.QueryString}}">
+{{.Body}}
+</form>
+{{end}}
+</div>
+</div>
+</body>
+</html>

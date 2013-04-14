@@ -1,0 +1,19 @@
+<html>
+<head>
+<title>{{if .Title}}{{.Title |html}}{{end}}</title>
+</head>
+<body>
+<div style="width:100%;text-align:center;">
+<br>
+{{.Message |html}}
+<br>
+<br>
+{{if .Body}}
+<form action="/{{.Path}}" name="module" method="POST">
+{{.Body}}
+</form>
+{{end}}
+</div>
+</div>
+</body>
+</html>

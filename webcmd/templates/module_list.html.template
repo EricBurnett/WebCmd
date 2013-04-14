@@ -1,0 +1,8 @@
+<div style="width:50%;text-align:left;margin-left:auto;margin-right:auto;">
+<h2>Installed Modules:</h2>
+<ol>
+{{range .Modules}}<li><h3>{{.Name}}</h3>
+<h4>Trigger with commands:</h4>
+<ul>{{range .Commands}}<li>{{.}}</li>{{end}}
+</ul></li>{{end}}
+</ol>

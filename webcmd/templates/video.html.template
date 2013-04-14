@@ -1,0 +1,18 @@
+<html>
+<head>
+<title>Video Player</title>
+<link href="http://vjs.zencdn.net/c/video-js.css" rel="stylesheet">
+<script src="http://vjs.zencdn.net/c/video.js"></script>
+</head>
+<body>
+<div style="width:100%;text-align:center;margin-left:auto;margin-right:auto;">
+<video id="my_video_1" class="video-js vjs-default-skin" controls
+  preload="auto" width="100%" height="600"
+  data-setup="{}">
+  <source src="{{.Url}}" type='video/{{.Type}}'>
+</video>
+<br>
+Download <a href="{{.DownloadUrl}}">Original</a>{{if .TranscodeUrl}}, or <a href="{{.TranscodeUrl}}">Transcode</a>{{end}}
+</div>
+</body>
+</html>
