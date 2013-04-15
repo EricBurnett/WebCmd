@@ -1,69 +1,79 @@
 package modules
 
 import (
-    "flag"
-    "fmt"
-    "io/ioutil"
-    "log"
-    "net/http"
-    "os"
-    "path/filepath"
-    "html/template"
-    "time"
+	"flag"
+	"fmt"
+	"html/template"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"time"
 )
 
 var gs_path = flag.String("gs_path",
-    "C:\\Users\\Somebody\\AppData\\Roaming\\GroovesharkDesktop." +
-    "LOTSOFHEXDIGITS.1\\Local Store",
+	"C:\\Users\\Somebody\\AppData\\Roaming\\GroovesharkDesktop."+
+		"LOTSOFHEXDIGITS.1\\Local Store",
 	"Path to GrooveShark control directory.")
 var gs_control_file = flag.String("gs_control_file", "shortcutAction.txt",
 	"GrooveShark control file.")
 
-type Page struct {
+type page struct {
 	Message string
 }
 
-// This struct implements modules.Module
+// GSModule implements modules.Module and provides a basic controller for the 
+// GrooveShark Desktop application.
 type GSModule struct {
-    // Channel to use for tracking message requests.
-    MessageChannel chan string
-    
-    // Path to GrooveShark file to write instructions to.
-    File string
+	// Channel to use for tracking message requests. Push a gsDesktop control
+    // message (like "playpause") into this channel to have it sent to the
+    // application.
+	MessageChannel chan string
+
+	// Path to GrooveShark file to write instructions to.
+	file string
 }
 
+// Returns a GSModule.
 func NewGSModule() *GSModule {
-    return &GSModule{
-        MessageChannel: make(chan string, 100),
-    }
+	return &GSModule{
+		MessageChannel: make(chan string, 100),
+	}
 }
 
+// Initializes the GSModule with the flagged file. If the specified file cannot
+// be opened, returns an error instead.
 func (m *GSModule) Init() error {
-    m.File = filepath.Join(*gs_path, *gs_control_file)
+	m.file = filepath.Join(*gs_path, *gs_control_file)
 
 	// Initialize GrooveShark.
-    _, err := os.Stat(m.File)
+	_, err := os.Stat(m.file)
 	if err != nil {
-        return err
-    }
+		return err
+	}
 	go m.pushMessages()
-    return nil
+	return nil
 }
 
-var GS_TEMPLATE_FILE = "templates/gs.html.template"
-
+// The name of this module.
 func (m *GSModule) Name() string {
-    return "GrooveShark Controller"
+	return "GrooveShark Controller"
 }
 
+// The command hooks to install under.
 func (m *GSModule) Commands() []string {
-    return []string{"gs", "grooveshark", "music"}
+	return []string{"gs", "grooveshark", "music"}
 }
 
+// RunCommand runs a single command. This module draws the control interface
+// regardless of the command string.
 func (m *GSModule) RunCommand(command string, args string) (template.HTML, error) {
-    return m.ComposeForm("")
+	return m.ComposeForm("")
 }
 
+// Responds to form events (i.e. interface interactions), and sends the
+// appropriate commands to Grooveshark Desktop.
 func (m *GSModule) RunEvent(req *http.Request) (template.HTML, error) {
 	choice := req.FormValue("gs_choice")
 	switch choice {
@@ -78,35 +88,39 @@ func (m *GSModule) RunEvent(req *http.Request) (template.HTML, error) {
 	case "Volume down":
 		m.MessageChannel <- "volumedown"
 	}
-    
-    return m.ComposeForm(choice)
+
+	return m.ComposeForm(choice)
 }
 
+var GS_TEMPLATE_FILE = "templates/gs.html.template"
+
+// Composes the control interface form HTML, with an optional message printed.
 func (m *GSModule) ComposeForm(message string) (template.HTML, error) {
-    template_content, err := ioutil.ReadFile(GS_TEMPLATE_FILE)
-    if err != nil {
-        return "", err
-    }
-    var gsTemplate = template.New("GS template")
-    gsTemplate, err = gsTemplate.Parse(string(template_content))
-    if err != nil {
-        return "", err
-    }
-	p := &Page{Message: message}
-    var w HTMLWriter
-    gsTemplate.Execute(&w, p)
-    return w.S, nil
+	template_content, err := ioutil.ReadFile(GS_TEMPLATE_FILE)
+	if err != nil {
+		return "", err
+	}
+	var gsTemplate = template.New("GS template")
+	gsTemplate, err = gsTemplate.Parse(string(template_content))
+	if err != nil {
+		return "", err
+	}
+	p := &page{Message: message}
+	var w HTMLWriter
+	gsTemplate.Execute(&w, p)
+	return w.HTML(), nil
 }
 
-// Write a single message to GrooveShark.
+// Write (a) message(s) to Grooveshark. Retries in a loop, because individual
+// file operations may fail (e.g. if the file is opened for read on Windows).
 func (m *GSModule) writeMessageToGS(message string) bool {
 	log.Print("Writing message: ", message)
 	var last_err error = nil
 	for i := 0; i < 50; i++ { // Retry a write up to 50 times (5s)
-		file, err := os.OpenFile(m.File, os.O_WRONLY|os.O_APPEND, 0)
+		file, err := os.OpenFile(m.file, os.O_WRONLY|os.O_APPEND, 0)
 		if err != nil {
 			last_err = err
-			time.Sleep(100*time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
 			continue
 		}
 
@@ -114,7 +128,7 @@ func (m *GSModule) writeMessageToGS(message string) bool {
 		file.Close()
 		if err != nil {
 			last_err = err
-			time.Sleep(100*time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
 			continue
 		}
 		log.Print("Write succeeded")
@@ -124,6 +138,7 @@ func (m *GSModule) writeMessageToGS(message string) bool {
 	return false
 }
 
+// Loop to push messages received as they're added to the channel.
 func (m *GSModule) pushMessages() {
 	for message := range m.MessageChannel {
 		// Take all pending messages as well
