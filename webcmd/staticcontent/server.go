@@ -20,11 +20,13 @@ import (
 var custom_video_player = flag.Bool("custom_video_player", true,
 	"Embed videos in a custom video player.")
 
+var transcode = flag.Bool("transcode", true,
+    "Try to transcode videos to web-friendly formats.")
 var transcoder = flag.String("transcoder", "ffmpeg",
     "The transcoder to use, either as a fully qualified path or as an " +
     "executable on the path.")
 var transcode_settings = flag.String("transcode_settings",
-    "-vcodec libvpx -threads 0 -bufsize 100m -b:v 3000k -bt 300k -acodec " +
+    "-vcodec libvpx -threads 0 -bufsize 100m -b:v 4000k -bt 1000k -acodec " +
     "libvorbis -ab 96k -ac 2 -f webm -quality realtime -",
     "Transcode settings to pass to the transcoder. Note that the transcoder " +
     "must be configured to write the result to stdout.")
@@ -101,9 +103,17 @@ func (f *fileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         }
         case "mkv","avi","wmv": {
             if *custom_video_player {
-                f.ServeVideoPlayer(*transcode_content_type, true, w, r)
+                if *transcode {
+                    f.ServeVideoPlayer(*transcode_content_type, true, w, r)
+                } else {
+                    f.ServeVideoPlayer(i, false, w, r)
+                }
             } else {
-                f.TranscodeAndServe(w, r)
+                if *transcode {
+                    f.TranscodeAndServe(w, r)
+                } else {
+                    f.fallbackHandler.ServeHTTP(w, r)
+                }
             }
             return
         }
@@ -152,13 +162,13 @@ func (f *fileHandler) TranscodeAndServe(w http.ResponseWriter, r *http.Request) 
     log.Println("Calling", cmd.Path, cmd.Args)
 
     w.Header().Set("Content-Type", "video/" + *transcode_content_type)
-    c := make(chan []byte, 1)
+    c := make(chan []byte, 100)
     defer close(c)
     cmd.Stdout = &ChannelWriter{c}
     
     // Redirect all stderr output from the transcoder to the log file.
     if *verbose_transcode_output {
-        c2 := make(chan []byte, 1)
+        c2 := make(chan []byte, 100)
         defer close(c2)
         cmd.Stderr = &ChannelWriter{c2}
         go func() {

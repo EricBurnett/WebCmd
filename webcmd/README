@@ -1,0 +1,66 @@
+WebCmd
+======
+Framework for putting together custom tools into a web interface. Makes it easy
+to provide control over services on your local computer through a common
+webpage, or to experiment with simple tools a la the Google calculator.
+
+Alpha - this is a work in progress, getting new features and modules as I need
+them. May not be too valuable yet, although the on-the-fly transcoding is 
+pretty slick.
+
+Written on Windows (x64), but it should be platform agnostic. If you try it on
+anything else, let me know how it goes.
+
+Top-level Flags:
+ -host: Server address to host on. (":8080" is default).
+ -window: Whether to try to open a GUI window. On windows when --window=false
+   the process runs in the background with no ui except the webpage.
+
+Currently Supported Modules:
+-------------------
+Static File Serving
+    SMB making you miserable?  This lets you share files from your local disk
+    over standard HTTP for easy access.
+    Can't easily play your videos across devices? Video files are wrapped in an
+    HTML5 player (disable with --custom_video_player=false), and transcoded on
+    the fly to a web-friendly format (disable with --transcode=false).
+    
+    Notes:
+     - Served paths are configured via staticcontent/paths.csv.
+     - Player via videojs.com
+     - You must have ffmpeg or similar for transcoding.
+     - Transcoded files can't be seeked, since they're encoded on the fly. If
+       you have ideas to make that work without losing the instant playing, give
+       me a shout!
+     - I've only tested file formats in Chrome, but via --transcode_settings and
+       --transcode_content_type you can experiment yourself. If you find other
+       browsers like different settings, let me know and I can add 
+       browser-specific options.
+
+    Flags:
+     (staticcontent/paths.csv to configure paths).
+     -custom_video_player: Whether to return an HTML5 player wrapper for video
+       files.
+     -transcode: Transcode videos to web-friendly formats.
+     -transcoder: Path to transcoder to use (ffmpeg is default).
+     -transcode_settings: Parameters to pass to transcoder to control output.
+     -transcode_content_type: Content type of the transcoded video, for setting
+       mime types. (webm is default).
+     -verbose_transcode_output: Write extra output to the log file, including
+       the stderr messages of the transcoder itself.
+
+
+Grooveshark Desktop
+    Basic player controls for Grooveshark Desktop. Only limited controls are
+    supported (support was intended for keyboard shortcuts), but this gives you
+    play/pause and next song at least.
+    
+    Notes:
+     - You must set --gs_path to point to the Grooveshark Desktop location to
+       enable the module - it won't load if it can't find the file.
+       
+    Flags:
+     -gs_path: The path Grooveshark Desktop installed user data to. Set this
+       to enable gsDesktop control.
+     -gs_control_file: The file Grooveshark watches. You shouldn't need to
+       change this.
