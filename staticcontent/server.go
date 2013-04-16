@@ -1,12 +1,12 @@
 package staticcontent
 
 import (
-	"../platform"
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/EricBurnett/WebCmd/platform"
+	"github.com/EricBurnett/WebCmd/resources"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os/exec"
@@ -273,7 +273,7 @@ type videoData struct {
 // type is set as t. If transcode is true, the video URL will point to the
 // transcode handler, otherwise the raw file handler.
 func (f *FileHandler) ServeVideoPlayer(t string, transcode bool, w http.ResponseWriter, r *http.Request) {
-	template_content, err := ioutil.ReadFile(VIDEO_TEMPLATE_FILE)
+	template_content, err := resources.Load(VIDEO_TEMPLATE_FILE)
 	if err != nil {
 		f.FallbackHandler.ServeHTTP(w, r)
 	}

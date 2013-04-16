@@ -1,11 +1,11 @@
 package main
 
 import (
-	"./modules"
-	"./staticcontent"
 	"fmt"
+	"github.com/EricBurnett/WebCmd/modules"
+	"github.com/EricBurnett/WebCmd/resources"
+	"github.com/EricBurnett/WebCmd/staticcontent"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -78,7 +78,7 @@ var BARE_MODULE_FILE = "templates/bare_module.html.template"
 func (server WebCmdServer) BareModuleHandler(command string, m modules.Module) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, req *http.Request) {
 		logRequest(req)
-		template_content, err := ioutil.ReadFile(BARE_MODULE_FILE)
+		template_content, err := resources.Load(BARE_MODULE_FILE)
 		if err != nil {
 			server.PrintError(w, err)
 			return
@@ -145,7 +145,7 @@ func (server WebCmdServer) RootHandler() func(http.ResponseWriter, *http.Request
 			message = err.Error()
 		}
 
-		template_content, err := ioutil.ReadFile(ROOT_TEMPLATE_FILE)
+		template_content, err := resources.Load(ROOT_TEMPLATE_FILE)
 		if err != nil {
 			server.PrintError(w, err)
 			return

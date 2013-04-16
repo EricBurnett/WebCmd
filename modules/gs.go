@@ -3,8 +3,8 @@ package modules
 import (
 	"flag"
 	"fmt"
+	"github.com/EricBurnett/WebCmd/resources"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -27,8 +27,8 @@ type page struct {
 // GrooveShark Desktop application.
 type GSModule struct {
 	// Channel to use for tracking message requests. Push a gsDesktop control
-    // message (like "playpause") into this channel to have it sent to the
-    // application.
+	// message (like "playpause") into this channel to have it sent to the
+	// application.
 	MessageChannel chan string
 
 	// Path to GrooveShark file to write instructions to.
@@ -96,7 +96,7 @@ var GS_TEMPLATE_FILE = "templates/gs.html.template"
 
 // Composes the control interface form HTML, with an optional message printed.
 func (m *GSModule) ComposeForm(message string) (template.HTML, error) {
-	template_content, err := ioutil.ReadFile(GS_TEMPLATE_FILE)
+	template_content, err := resources.Load(GS_TEMPLATE_FILE)
 	if err != nil {
 		return "", err
 	}

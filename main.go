@@ -1,9 +1,9 @@
 package main
 
 import (
-	"./platform"
 	"flag"
 	"fmt"
+	"github.com/EricBurnett/WebCmd/platform"
 	"log"
 	"net"
 	"os"

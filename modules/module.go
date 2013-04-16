@@ -1,7 +1,7 @@
 package modules
 
 import (
-	"../staticcontent"
+	"github.com/EricBurnett/WebCmd/staticcontent"
 	"html/template"
 	"log"
 	"net/http"
@@ -14,15 +14,15 @@ import (
 // these interfaces.
 type Module interface {
 	// Initializes the module. If an error is returned, the module will not be
-    // installed.
+	// installed.
 	Init() error
 
 	// The name of this module. May be called before Init.
 	Name() string
 
 	// The preferred command strings for the module. May be called before Init.
-    // Output be single words, and there may be multiple. e.g.
-    // ["gs", "grooveshark", "music"]
+	// Output be single words, and there may be multiple. e.g.
+	// ["gs", "grooveshark", "music"]
 	Commands() []string
 
 	// Runs a command string. The triggering command is passed as one parameter,
@@ -63,12 +63,12 @@ type HTMLWriter struct {
 
 // Adds HTML to the writer.
 func (m *HTMLWriter) Write(p []byte) (n int, err error) {
-    // TODO: use something more efficient.
+	// TODO: use something more efficient.
 	m.h = m.h + template.HTML(p)
 	return len(p), nil
 }
 
 // Returns all the HTML added since creation.
 func (m *HTMLWriter) HTML() template.HTML {
-    return m.h
+	return m.h
 }

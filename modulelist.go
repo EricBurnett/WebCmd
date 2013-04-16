@@ -1,9 +1,9 @@
 package main
 
 import (
-	"./modules"
+	"github.com/EricBurnett/WebCmd/modules"
+	"github.com/EricBurnett/WebCmd/resources"
 	"html/template"
-	"io/ioutil"
 	"sort"
 )
 
@@ -20,7 +20,7 @@ type moduleList struct {
 
 // Composes a nice list of all installed modules and their handlers, in HTML.
 func ModuleList(m map[string]modules.Module) (template.HTML, error) {
-	template_content, err := ioutil.ReadFile(MODULE_LIST_FILE)
+	template_content, err := resources.Load(MODULE_LIST_FILE)
 	if err != nil {
 		return template.HTML(""), err
 	}

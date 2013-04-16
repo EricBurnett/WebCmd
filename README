@@ -13,8 +13,13 @@ anything else, let me know how it goes.
 
 Top-level Flags:
  -host: Server address to host on. (":8080" is default).
- -window: Whether to try to open a GUI window. On windows when --window=false
-   the process runs in the background with no ui except the webpage.
+ -window: Whether to try to open a GUI window. On windows when compiled as a gui
+   application and run with --window=false the process runs in the background
+   with no visible window whatsoever.
+ -resource_path: Where to find resource files. This shouldn't need to be set for
+   installed go programs - it will look relative to the location of the 
+   executable - but if necessary, set to the source directory 
+   (src/github.com/EricBurnett/WebCmd).
 
 Currently Supported Modules:
 -------------------
@@ -27,7 +32,7 @@ Static File Serving
     
     Notes:
      - Served paths are configured via staticcontent/paths.csv.
-     - Player via videojs.com
+     - Player via http://videojs.com
      - You must have ffmpeg or similar for transcoding.
      - Transcoded files can't be seeked, since they're encoded on the fly. If
        you have ideas to make that work without losing the instant playing, give

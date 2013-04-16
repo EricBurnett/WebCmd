@@ -1,9 +1,9 @@
 package modules
 
 import (
-	"../staticcontent"
+	"github.com/EricBurnett/WebCmd/resources"
+	"github.com/EricBurnett/WebCmd/staticcontent"
 	"html/template"
-	"io/ioutil"
 	"net/http"
 )
 
@@ -52,7 +52,7 @@ var STATIC_CONTENT_TEMPLATE_FILE = "templates/static_content.html.template"
 
 // Produces a listing in HTML.
 func (m *StaticContentModule) List() (template.HTML, error) {
-	template_content, err := ioutil.ReadFile(STATIC_CONTENT_TEMPLATE_FILE)
+	template_content, err := resources.Load(STATIC_CONTENT_TEMPLATE_FILE)
 	if err != nil {
 		return "", err
 	}
