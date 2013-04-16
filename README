@@ -84,4 +84,5 @@ A Full Example
  5. WebCmd --gs_path="C:\Users\Me\AppData\Roaming\GroovesharkDesktop.BLAHBLAH.1\Local Store"
     --static_content_config="C:\Documents\webcmd_paths.csv"
  6. Point a web browser to http://localhost:8080
- 7. Try typing "files", or going to http://localhost:8080/files
+ 7. Try typing "files", or going to http://localhost:8080/files, and browse
+    around. Try a video!
