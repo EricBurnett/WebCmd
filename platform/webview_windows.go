@@ -3,6 +3,7 @@
 package platform
 
 import (
+	"errors"
 	"log"
 )
 
@@ -15,7 +16,7 @@ import (
 // Spawns a window containing a webview pointed at the given URL, and waits for
 // it to be closed. If the webview cannot be opened, returns an error
 // immediately.
-func WebviewWindow(serverURL string) error {
+func WebviewWindow(serverURL string) (e error) {
 	var mainWindow *walk.MainWindow
 	var webView *walk.WebView
 
@@ -33,7 +34,10 @@ func WebviewWindow(serverURL string) error {
 			},
 		},
 	}.Create()); err != nil {
-		return err
+		log.Println("Error while creating window. Usually happens when " +
+			"compiled without -ldflags=\"-Hwindowsgui\" or a manifest. " +
+			"see make.bat to compile with window support on windows.")
+		return errors.New("Unable to create webview window")
 	}
 	log.Print("Create complete, initializing webView with URL ", serverURL)
 	webView.SetURL(serverURL)
