@@ -77,12 +77,11 @@ A Full Example
  1. Install ffmpeg somewhere on your path.
  2. Create a file for configuring static file serving. E.g.
     C:\Documents\webcmd_paths.csv:
-"documents","C:\Documents"
+"movies","C:\Documents\Movies"
     (On linux, use linux-style paths)
  3. go get github.com/EricBurnett/WebCmd
  4. go install github.com/EricBurnett/WebCmd
- 5. WebCmd --gs_path="C:\Users\Me\AppData\Roaming\GroovesharkDesktop.BLAHBLAH.1\Local Store"
-    --static_content_config="C:\Documents\webcmd_paths.csv"
+ 5. WebCmd --static_content_config="C:\Documents\webcmd_paths.csv"
  6. Point a web browser to http://localhost:8080
  7. Try typing "files", or going to http://localhost:8080/files, and browse
     around. Try a video!
