@@ -32,7 +32,7 @@ Static File Serving
     
     Notes:
      - Served paths are configured via --static_content_config.
-     - Player via http://videojs.com
+     - Player comes from http://videojs.com
      - You must have ffmpeg or similar for transcoding.
      - Transcoded files can't be seeked, since they're encoded on the fly. If
        you have ideas to make that work without losing the instant playing, give
@@ -75,7 +75,8 @@ Grooveshark Desktop
 A Full Example
 ==============
  1. Install ffmpeg somewhere on your path.
- 2. Create a file for configuring static file serving. E.g. C:\Documents\webcmd_paths.csv:
+ 2. Create a file for configuring static file serving. E.g.
+    C:\Documents\webcmd_paths.csv:
 "documents","C:\Documents"
     (On linux, use linux-style paths)
  3. go get github.com/EricBurnett/WebCmd
