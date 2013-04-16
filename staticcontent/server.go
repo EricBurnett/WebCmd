@@ -235,7 +235,7 @@ func (f *FileHandler) TranscodeAndServe(w http.ResponseWriter, r *http.Request) 
 					}
 					n, err := w.Write(b)
 					if err != nil {
-						log.Println("Failed to write to output stream. Done!")
+						log.Println("Failed to write to output stream. Consumer gone, stopping transcode.")
 						shouldBreak = true
 					} else if n != len(b) {
 						log.Println("Read/Write mismatch; read", len(b), "but wrote", n, ". Aborting stream.")
@@ -260,14 +260,14 @@ func (f *FileHandler) TranscodeAndServe(w http.ResponseWriter, r *http.Request) 
 	cmd.Process.Kill()
 }
 
-var VIDEO_TEMPLATE_FILE = "templates/video.html.template"
-
 type videoData struct {
 	Url          string
 	DownloadUrl  string
 	TranscodeUrl string
 	Type         string
 }
+
+var VIDEO_TEMPLATE_FILE = "templates/video.html.template"
 
 // Serves a video player wrapper around a file (via the request URL). The video
 // type is set as t. If transcode is true, the video URL will point to the

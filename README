@@ -31,7 +31,7 @@ Static File Serving
     the fly to a web-friendly format (disable with --transcode=false).
     
     Notes:
-     - Served paths are configured via staticcontent/paths.csv.
+     - Served paths are configured via --static_content_config.
      - Player via http://videojs.com
      - You must have ffmpeg or similar for transcoding.
      - Transcoded files can't be seeked, since they're encoded on the fly. If
@@ -43,7 +43,8 @@ Static File Serving
        browser-specific options.
 
     Flags:
-     (staticcontent/paths.csv to configure paths).
+     -static_content_config: Path to csv file for configuring hosted
+       directories. staticcontent/example_paths.csv for an example file.
      -custom_video_player: Whether to return an HTML5 player wrapper for video
        files.
      -transcode: Transcode videos to web-friendly formats.
@@ -69,3 +70,17 @@ Grooveshark Desktop
        to enable gsDesktop control.
      -gs_control_file: The file Grooveshark watches. You shouldn't need to
        change this.
+       
+
+A Full Example
+==============
+ 1. Install ffmpeg somewhere on your path.
+ 2. Create a file for configuring static file serving. E.g. C:\Documents\webcmd_paths.csv:
+"documents","C:\Documents"
+    (On linux, use linux-style paths)
+ 3. go get github.com/EricBurnett/WebCmd
+ 4. go install github.com/EricBurnett/WebCmd
+ 5. WebCmd --gs_path="C:\Users\Me\AppData\Roaming\GroovesharkDesktop.BLAHBLAH.1\Local Store"
+    --static_content_config="C:\Documents\webcmd_paths.csv"
+ 6. Point a web browser to http://localhost:8080
+ 7. Try typing "files", or going to http://localhost:8080/files
