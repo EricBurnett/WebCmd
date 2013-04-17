@@ -52,6 +52,10 @@ Static File Serving
      -transcode_settings: Parameters to pass to transcoder to control output.
      -transcode_content_type: Content type of the transcoded video, for setting
        mime types. (webm is default).
+     -transcode_input_flag: Flag to specify an input file, if different from
+       ffmpeg.
+     -transcode_seek_flag: Flag to specify how far to seek the input, if
+       different from ffmpeg. If set to '', seeking is disabled.
      -verbose_transcode_output: Write extra output to the log file, including
        the stderr messages of the transcoder itself.
 

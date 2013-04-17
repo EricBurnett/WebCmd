@@ -9,9 +9,11 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -30,10 +32,23 @@ var transcode_settings = flag.String("transcode_settings",
 		"libvorbis -ab 96k -ac 2 -f webm -quality realtime -",
 	"Transcode settings to pass to the transcoder. Note that the transcoder "+
 		"must be configured to write the result to stdout.")
+var transcode_input_flag = flag.String("transcode_input_flag", "-i",
+	"Flag used to specify input to the transcode program.")
+var transcode_seek_flag = flag.String("transcode_seek_flag", "-ss",
+	"Flag used to specify how far to seek into the input file (in seconds) "+
+		"before processing.")
 var transcode_content_type = flag.String("transcode_content_type", "webm",
 	"The Content-Type used for transcoded video output.")
 var verbose_transcode_output = flag.Bool("verbose_transcode_output", false,
 	"Log verbose transcode output.")
+
+var (
+	PARAM_MODE     = "sc_mode"
+	MODE_RAW       = "raw"
+	MODE_TRANSCODE = "transcode"
+
+	PARAM_SEEK = "sc_seek"
+)
 
 // A static content server, for serving data from the filesystem under specific
 // named paths. Based on command line flags, can do more than simply serve files
@@ -124,11 +139,11 @@ type FileHandler struct {
 // to serve a transcoded version of a video.
 func (f *FileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	logRequest(r)
-	if r.FormValue("sc_mode") == "raw" {
+	if r.FormValue(PARAM_MODE) == MODE_RAW {
 		f.FallbackHandler.ServeHTTP(w, r)
 		return
 	}
-	if r.FormValue("sc_mode") == "transcode" {
+	if r.FormValue(PARAM_MODE) == MODE_TRANSCODE {
 		f.TranscodeAndServe(w, r)
 		return
 	}
@@ -188,7 +203,20 @@ func (f *FileHandler) TranscodeAndServe(w http.ResponseWriter, r *http.Request) 
 	}
 
 	transcodeSettings := strings.Split(*transcode_settings, " ")
-	args := []string{"-i", videoPath}
+	args := []string{}
+	// (Optional) seek position
+	seek := r.FormValue(PARAM_SEEK)
+	if len(seek) > 0 && len(*transcode_seek_flag) > 0 {
+		regex := regexp.MustCompile(`[0-9:.]+`)
+		if regex.MatchString(seek) {
+			args = append(args, *transcode_seek_flag, seek)
+		} else {
+			log.Println("Seek specified, but invalid format:", seek)
+		}
+	}
+	// Input file
+	args = append(args, *transcode_input_flag, videoPath)
+	// Extra transcode settings and output specifier.
 	args = append(args, transcodeSettings...)
 	cmd := exec.Command(*transcoder, args...)
 	platform.Hide(cmd)
@@ -283,12 +311,27 @@ func (f *FileHandler) ServeVideoPlayer(t string, transcode bool, w http.Response
 	if err != nil {
 		f.FallbackHandler.ServeHTTP(w, r)
 	}
+
+	// If copyable params are set, replicate them to the destination.
+	base_params := url.Values{}
+	if len(r.FormValue(PARAM_SEEK)) > 0 {
+		base_params.Set(PARAM_SEEK, r.FormValue(PARAM_SEEK))
+	}
+
+	transcode_params := base_params
+	transcode_params.Set(PARAM_MODE, MODE_TRANSCODE)
+	transcode_url := "?" + transcode_params.Encode()
+
+	raw_params := base_params
+	raw_params.Set(PARAM_MODE, MODE_RAW)
+	raw_url := "?" + raw_params.Encode()
+
 	var v *videoData
 	if transcode {
-		v = &videoData{Url: "?sc_mode=transcode", DownloadUrl: "?sc_mode=raw",
-			TranscodeUrl: "?sc_mode=transcode", Type: t}
+		v = &videoData{Url: transcode_url, DownloadUrl: raw_url,
+			TranscodeUrl: transcode_url, Type: t}
 	} else {
-		v = &videoData{Url: "?sc_mode=raw", DownloadUrl: "?sc_mode=raw", Type: t}
+		v = &videoData{Url: raw_url, DownloadUrl: raw_url, Type: t}
 	}
 	videoTemplate.Execute(w, v)
 }
